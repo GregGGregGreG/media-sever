@@ -1,5 +1,9 @@
 package edu.greg.telesens.server;
 
+import edu.greg.telesens.server.commands.PlayCmd;
+import edu.greg.telesens.server.services.PlayerService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,19 +18,44 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
  * Created by
  * GreG on 11/8/2016.
  */
+@Slf4j
 @RestController
 public class MsController {
 
-    private static final String TEMPLATE = "Hello, %s!";
+    private final PlayerService playerService;
 
-    @RequestMapping("/greeting")
-    public HttpEntity<Greeting> greeting(
-            @RequestParam(value = "name", required = false, defaultValue = "World") String name) {
-
-        Greeting greeting = new Greeting(String.format(TEMPLATE, name));
-        greeting.add(linkTo(methodOn(MsController.class).greeting(name)).withSelfRel());
-
-        return new ResponseEntity<Greeting>(greeting, HttpStatus.OK);
+    @Autowired
+    public MsController(PlayerService playerService) {
+        this.playerService = playerService;
     }
 
+    @RequestMapping("/play")
+    public HttpEntity<PlayCmd> greeting(
+            @RequestParam(value = "host", required = false, defaultValue = "localhost") String host,
+            @RequestParam(value = "port", required = false, defaultValue = "1314") String port,
+            @RequestParam(value = "melodyPath", required = false, defaultValue = "testPath") String melodyPath,
+            @RequestParam(value = "codec", required = false, defaultValue = "TestCodeck") String codec,
+            @RequestParam(value = "rep", required = false, defaultValue = "1") String repeat) {
+        log.info("Process play command for {}:{}:{}:{}", host, port, codec, repeat);
+
+        playerService.play(host, Integer.parseInt(port), melodyPath, codec, Integer.parseInt(repeat));
+
+        PlayCmd playCmd = new PlayCmd(String.format(host, port, melodyPath, codec, repeat));
+        playCmd.add(linkTo(methodOn(MsController.class).greeting(host, port, melodyPath, codec, repeat)).withSelfRel());
+
+        return new ResponseEntity<PlayCmd>(playCmd, HttpStatus.OK);
+    }
+
+    @RequestMapping("/stop")
+    public HttpEntity<PlayCmd> greeting(
+            @RequestParam(value = "callerAddress", required = false, defaultValue = "13131313") String msidn) {
+        log.info("Process stop command for {}:{}:{}.", msidn);
+
+        playerService.stop();
+
+        PlayCmd playCmd = new PlayCmd(msidn);
+        playCmd.add(linkTo(methodOn(MsController.class).greeting(msidn)).withSelfRel());
+
+        return new ResponseEntity<PlayCmd>(playCmd, HttpStatus.OK);
+    }
 }
