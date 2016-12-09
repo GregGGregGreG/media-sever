@@ -1,6 +1,7 @@
 package edu.greg.telesens.server.services;
 
 import edu.greg.telesens.server.audio.Track;
+import edu.greg.telesens.server.audio.vox.VoxTrackImpl;
 import edu.greg.telesens.server.audio.wav.WavTrackImpl;
 import edu.greg.telesens.server.dsp.AudioProcessor;
 import edu.greg.telesens.server.format.AudioFormat;
@@ -113,7 +114,8 @@ public class DefaultPlayerService implements PlayerService, ActionListener {
         log.info("Start Play --> {}:{}:{}:{}", host, port, melodyPath, codec);
         DST_ADDRRES = new InetSocketAddress(host, port);
         try {
-            track = new WavTrackImpl(new URL(melodyPath));
+//            track = new WavTrackImpl(new URL(melodyPath));
+            track = new VoxTrackImpl(new URL(melodyPath));
             dsp.setSourceFormat(track.getFormat());
             dsp.setDestinationFormat(g711a);
         } catch (UnsupportedAudioFileException | IOException e) {

@@ -33,7 +33,7 @@ public class MsController {
     public HttpEntity<PlayCmd> greeting(
             @RequestParam(value = "host", required = false, defaultValue = "localhost") String host,
             @RequestParam(value = "port", required = false, defaultValue = "1314") String port,
-            @RequestParam(value = "melodyPath", required = false, defaultValue = "testPath") String melodyPath,
+            @RequestParam(value = "melodyPath", required = false, defaultValue = "file:///P:/nrt10/content/nrt-content-root/ip/699/00/02/699000263.vox") String melodyPath,
             @RequestParam(value = "codec", required = false, defaultValue = "TestCodeck") String codec,
             @RequestParam(value = "rep", required = false, defaultValue = "1") String repeat) {
         log.info("Process play command for {}:{}:{}:{}", host, port, codec, repeat);
