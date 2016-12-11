@@ -1,5 +1,7 @@
 package edu.greg.telesens.server.session;
 
+import edu.greg.telesens.server.channel.ClientChannelImpl;
+
 /**
  * Created by SKulik on 09.12.2016.
  */
@@ -16,7 +18,7 @@ public class ClientSession {
 
 //    local params
     private ClientSessionState state;
-    private ClientChannel channel;
+    private ClientChannelImpl channel;
 
     public String getId() {
         return id;
