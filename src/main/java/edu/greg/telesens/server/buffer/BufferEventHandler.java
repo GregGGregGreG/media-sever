@@ -5,5 +5,5 @@ package edu.greg.telesens.server.buffer;
  */
 public interface BufferEventHandler {
 //    handler event
-    void handle(String sessionId);
+    void handle(String sessionId, int packetCount);
 }

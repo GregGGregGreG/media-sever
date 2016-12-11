@@ -13,7 +13,6 @@ import edu.greg.telesens.server.session.ClientSession;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -29,13 +28,15 @@ public class ResourceWorkerImpl implements ResourceWorker {
     private AudioProcessor dsp;
 
     private long timestamp = 0;
+    private int packetCount = 0;
 
     public ResourceWorkerImpl(ResourceManager parent) {
         this.parent = parent;
     }
 
     @Override
-    public void handle(String sessionId) {
+    public void handle(String sessionId, int packetCount) {
+        this.packetCount = packetCount;
         parent.submit(this);
     }
 
@@ -60,18 +61,26 @@ public class ResourceWorkerImpl implements ResourceWorker {
 
     @Override
     public void run() {
-        ByteFrame frame;
+        for (int i = 0; i < packetCount; i++) {
+            try {
+                ByteFrame frame;
 
-        frame = track.process(timestamp);
-        frame.setTimestamp(timestamp);
-        ShortFrame outputFrame = dsp.decode(frame);
-        frame.recycle();
-        ByteFrame audioFrame;
-        audioFrame = dsp.encode(outputFrame);
-        outputFrame.recycle();
+                frame = track.process(timestamp);
+                frame.setTimestamp(timestamp);
+                ShortFrame outputFrame = dsp.decode(frame);
+                frame.recycle();
+                ByteFrame audioFrame;
+                audioFrame = dsp.encode(outputFrame);
+                outputFrame.recycle();
 
-        Packet packet = PacketMemory.allocate();
-        packet.setSessionId(session.getSessionId());
-        packet.setAudionFrame(audioFrame);
+                Packet packet = PacketMemory.allocate();
+                packet.setSessionId(session.getSessionId());
+                packet.setAudioFrame(audioFrame);
+                buffer.put(packet);
+            } catch (IOException e) {
+//                TODO intercept exception (maybe need to log it)
+            }
+        }
+        buffer.resourceComplete(session.getSessionId());
     }
 }

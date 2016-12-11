@@ -37,7 +37,7 @@ public class Packet {
         return sessionId;
     }
 
-    public void setAudionFrame(ByteFrame audionFrame) {
+    public void setAudioFrame(ByteFrame audionFrame) {
         this.audionFrame = audionFrame;
     }
 

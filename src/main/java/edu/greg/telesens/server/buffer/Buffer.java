@@ -10,10 +10,13 @@ public interface Buffer {
     Packet get(String sessionId);
 //    notify when no packets
     void notify(String sessionId);
-//
-    void bufferingComplete(String sessionId);
 //    set event handler
     void setEventHandler(BufferEventHandler handler);
 //    cleanup
     void cleanup();
+
+//    put packet
+    void put(Packet packet);
+// resource complete
+    void resourceComplete(String sessionId);
 }
