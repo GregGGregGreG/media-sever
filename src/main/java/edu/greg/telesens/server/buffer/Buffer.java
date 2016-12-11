@@ -1,5 +1,7 @@
 package edu.greg.telesens.server.buffer;
 
+import edu.greg.telesens.server.memory.Packet;
+
 /**
  * Created by Phoenix on 11.12.2016.
  */
@@ -8,6 +10,8 @@ public interface Buffer {
     Packet get(String sessionId);
 //    notify when no packets
     void notify(String sessionId);
+//
+    void bufferingComplete(String sessionId);
 //    set event handler
     void setEventHandler(BufferEventHandler handler);
 //    cleanup
