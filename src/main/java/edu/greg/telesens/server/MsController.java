@@ -38,6 +38,8 @@ public class MsController {
     @Autowired
     private SessionRegistry sessionRegistry;
 
+    private ClientSession session;
+
     private AudioFormat g711a = FormatFactory.createAudioFormat("pcma", 8000, 8, 1);
 
 
@@ -54,12 +56,13 @@ public class MsController {
             ClientSession session = sessionRegistry.register("streamer", host, Integer.parseInt(port), melodyPath, g711a, Integer.parseInt(repeat));
             log.info("initialized session " + session.getSessionId());
             sessionRegistry.play(session.getSessionId());
+            this.session = session;
         } catch (Exception e) {
             e.printStackTrace();
         }
 //        playerService.play(host, Integer.parseInt(port), melodyPath, codec, Integer.parseInt(repeat));
 
-        PlayCmd playCmd = new PlayCmd(String.format(host, port, melodyPath, codec, repeat));
+        PlayCmd playCmd = new PlayCmd(String.format(host, port, melodyPath, codec, repeat, session.getSessionId()));
         playCmd.add(linkTo(methodOn(MsController.class).greeting(host, port, melodyPath, codec, repeat)).withSelfRel());
 
         return new ResponseEntity<PlayCmd>(playCmd, HttpStatus.OK);
@@ -70,7 +73,7 @@ public class MsController {
             @RequestParam(value = "callerAddress", required = false, defaultValue = "13131313") String msidn) {
         log.info("Process stop command for {}:{}:{}.", msidn);
 
-        sessionRegistry.stop(msidn);
+        sessionRegistry.stop(session.getSessionId());
 
 //        playerService.stop();
 
