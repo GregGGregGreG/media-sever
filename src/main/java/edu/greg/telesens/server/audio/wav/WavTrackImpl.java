@@ -28,6 +28,7 @@
 package edu.greg.telesens.server.audio.wav;
 
 import edu.greg.telesens.server.audio.Track;
+import edu.greg.telesens.server.audio.vox.VoxInputStream;
 import edu.greg.telesens.server.format.AudioFormat;
 import edu.greg.telesens.server.format.FormatFactory;
 import edu.greg.telesens.server.memory.ByteFrame;
@@ -38,7 +39,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.ByteOrder;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Oifa Yulian
@@ -56,6 +59,9 @@ public class WavTrackImpl implements Track {
     private long duration;
     private int totalRead = 0;
     private int sizeOfData;
+    private AtomicInteger currentRepeat = new AtomicInteger(0);
+    private int repeat = 0;
+    private URL url;
 
     private boolean first = true;
     private SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss,SSS");
@@ -71,12 +77,18 @@ public class WavTrackImpl implements Track {
     private byte paddingByte = PCM_PADDING_BYTE;
 
     public WavTrackImpl(URL url) throws UnsupportedAudioFileException, IOException {
+        this.url = url;
         inStream = url.openStream();
 
         getFormat(inStream);
         if (format == null) {
             throw new UnsupportedAudioFileException();
         }
+    }
+
+    public WavTrackImpl(URL url, int repeat) throws IOException, UnsupportedAudioFileException {
+        this(url);
+        this.repeat = repeat;
     }
 
     public void setPeriod(int period) {
@@ -266,14 +278,27 @@ public class WavTrackImpl implements Track {
             eom = true;
         }
 
-        if (len < frameSize) {
-            padding(data, frameSize - len);
-            eom = true;
-        }
+//        if (len < frameSize) {
+//            padding(data, frameSize - len);
+//            eom = true;
+//        }
 
         //will not generate empty packet next time
-        if (totalRead >= sizeOfData)
+        if (totalRead >= (sizeOfData*(1+repeat)))
             eom = true;
+
+        if (len < frameSize) {
+            padding(data, frameSize - len);
+
+            if (currentRepeat.intValue() >= repeat) {
+                eom = true;
+            } else {
+                currentRepeat.incrementAndGet();
+                inStream.close();
+                inStream = url.openStream();;
+                readPacket(data, 0, frameSize);
+            }
+        }
 
         frame.setOffset(0);
         frame.setLength(frameSize);
