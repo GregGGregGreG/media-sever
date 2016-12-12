@@ -37,7 +37,7 @@ public class ChannelManagerImpl implements ChannelManager, InitializingBean, Dis
             executorService.shutdownNow();
         }
         workers.clear();
-        executorService = Executors.newScheduledThreadPool(poolSize, new NamedThreadFactory("resource"));
+        executorService = Executors.newScheduledThreadPool(poolSize, new NamedThreadFactory("channel"));
 
         for (int i = 0; i < poolSize; i++) {
             Slot slot = new Slot();

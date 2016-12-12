@@ -11,6 +11,9 @@ import java.io.IOException;
  */
 public interface ResourceManager {
     ResourceWorker createWorker(ClientSession session) throws ClassNotFoundException, UnsupportedAudioFileException, InstantiationException, IllegalAccessException, IOException;
+
+    void freeWorker(ResourceWorker worker);
+
     void start();
     void stop();
 

@@ -34,7 +34,13 @@ public class ResourceManagerImpl implements ResourceManager, DisposableBean, Ini
     public ResourceWorker createWorker(ClientSession session) throws ClassNotFoundException, UnsupportedAudioFileException, InstantiationException, IllegalAccessException, IOException {
         ResourceWorkerImpl worker = new ResourceWorkerImpl(this);
         worker.init(session);
+        workers.add(worker);
         return worker;
+    }
+
+    @Override
+    public void freeWorker(ResourceWorker worker) {
+        workers.remove(worker);
     }
 
     @Override

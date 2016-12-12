@@ -1,0 +1,123 @@
+package edu.greg.telesens.server.session;
+
+import edu.greg.telesens.server.buffer.Buffer;
+import edu.greg.telesens.server.buffer.BufferManager;
+import edu.greg.telesens.server.channel.ChannelManager;
+import edu.greg.telesens.server.channel.ClientChannel;
+import edu.greg.telesens.server.format.AudioFormat;
+import edu.greg.telesens.server.memory.Packet;
+import edu.greg.telesens.server.network.rtp.RtpPacket;
+import edu.greg.telesens.server.resource.ResourceManager;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+/**
+ * Created by SKulik on 12.12.2016.
+ */
+@Component
+public class SessionRegistryImpl implements SessionRegistry, InitializingBean {
+
+    private List<ClientSession> sessions = new CopyOnWriteArrayList<>();
+
+    @Value("${session.address:localhost}")
+    private String serverAddress;
+
+    @Value("${session.lowestPort:10000}")
+    private int lowestPort;
+    @Value("${session.highestPort:19000}")
+    private int highestPort;
+
+    private PortHolder portHolder;
+
+    @Value("${session.name:streamer}")
+    private String name;
+
+    @Autowired
+    private ResourceManager resourceManager;
+
+    @Autowired
+    private BufferManager bufferManager;
+
+    @Autowired
+    private ChannelManager channelManager;
+
+    @Override
+    public ClientSession register(String sipServer, String clientAddress, int clientPort, String melodyUrl, AudioFormat format, int repeat) throws Exception {
+        ClientSessionImpl session = new ClientSessionImpl(this, sipServer, clientAddress, clientPort, serverAddress, portHolder.getPort(), melodyUrl, format, repeat);
+        sessions.add(session);
+        return session;
+    }
+
+    @Override
+    public void play(String sessionId) {
+        ClientSession session = null;
+        for (ClientSession s : sessions) {
+            if (session.getSessionId().equals(sessionId)) {
+                session = s;
+            }
+        }
+        if (session != null) {
+            session.play();
+        }
+    }
+
+    @Override
+    public void stop(String sessionId) {
+        ClientSession session = null;
+        for (ClientSession s : sessions) {
+            if (session.getSessionId().equals(sessionId)) {
+                session = s;
+            }
+        }
+        if (session != null) {
+            session.stop();
+            sessions.remove(session);
+        }
+    }
+
+    @Override
+    public Set<String> getSessionIds() {
+        Set<String> sessionIds = new HashSet<>();
+        for (ClientSession session : sessions) {
+            sessionIds.add(session.getSessionId());
+        }
+        return sessionIds;
+    }
+
+    @Override
+    public RtpPacket wrap(ClientSession clientSession, Packet packet, long currentTime) {
+//       TODO !!!
+        return null;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.portHolder = new PortHolder(lowestPort, highestPort);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public ResourceManager getResourceManager() {
+        return resourceManager;
+    }
+
+    @Override
+    public BufferManager getBufferManager() {
+        return bufferManager;
+    }
+
+    @Override
+    public ChannelManager getChannelManager() {
+        return channelManager;
+    }
+}
