@@ -82,7 +82,7 @@ public class ClientSessionImpl implements ClientSession {
         }
 //            log.debug("Send --> {}", Arrays.toString(audioFrame.getData()));
 
-        rtpPacket.wrap(false, fmt.getID(), sequence, packet.getTimestamp(),
+        rtpPacket.wrap(false, fmt.getID(), sequence, packet.getAudioFrame().getTimestamp(),
                 packet.getStartRealTime(), packet.getAudioFrame().getData(), packet.getAudioFrame().getOffset(), packet.getAudioFrame().getLength());
 
 
