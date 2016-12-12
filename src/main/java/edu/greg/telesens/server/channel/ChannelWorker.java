@@ -6,9 +6,12 @@ import edu.greg.telesens.server.session.ClientSession;
 /**
  * Created by Phoenix on 11.12.2016.
  */
-public interface ChannelWorker {
+public interface ChannelWorker extends Runnable {
 //    start working with session
     void playSession(ClientSession session, Buffer buffer, ClientChannel channel);
 //    stop working with session
     void stopSession(ClientSession session);
+
+//    get count of managed sessions
+    int getSessionCount();
 }

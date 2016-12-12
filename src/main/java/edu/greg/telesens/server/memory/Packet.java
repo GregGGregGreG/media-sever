@@ -10,6 +10,7 @@ public class Packet {
     private PacketPartition partition;
     private String sessionId;
     private ByteFrame audionFrame;
+    private long timestamp;
 
     public Packet(PacketPartition packetPartition) {
         this.partition = packetPartition;
@@ -43,5 +44,13 @@ public class Packet {
 
     public ByteFrame getAudionFrame() {
         return audionFrame;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

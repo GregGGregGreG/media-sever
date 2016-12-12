@@ -16,8 +16,13 @@ public class BufferManagerImpl implements BufferManager, InitializingBean, Dispo
 
     private List<Buffer> buffers = new CopyOnWriteArrayList<>();
 
-    @Value("${buffers.bufferSize:10}")
+    @Value("${buffers.genBufferSize:10}")
     private int bufferSize;
+
+    @Value("${buffers.minBufferSize:10}")
+    private int minBufferSize;
+
+
 
     @Override
     public void start() {
@@ -34,7 +39,7 @@ public class BufferManagerImpl implements BufferManager, InitializingBean, Dispo
 
     @Override
     public Buffer createBuffer() {
-        Buffer buffer = new BufferImpl(bufferSize);
+        Buffer buffer = new BufferImpl(bufferSize, minBufferSize);
         buffers.add(buffer);
         return buffer;
     }

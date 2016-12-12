@@ -8,6 +8,8 @@ import edu.greg.telesens.server.memory.Packet;
 public interface Buffer {
 //    get new packet
     Packet get(String sessionId);
+//    return packet to queue head
+    void rollback(Packet packet);
 //    notify when no packets
     void notify(String sessionId);
 //    set event handler
