@@ -4,6 +4,7 @@ import edu.greg.telesens.server.buffer.BufferManager;
 import edu.greg.telesens.server.channel.ChannelManager;
 import edu.greg.telesens.server.format.AudioFormat;
 import edu.greg.telesens.server.memory.Packet;
+import edu.greg.telesens.server.network.rtp.RTPFormats;
 import edu.greg.telesens.server.network.rtp.RtpPacket;
 import edu.greg.telesens.server.resource.ResourceManager;
 
@@ -18,11 +19,11 @@ public interface SessionRegistry {
     void stop(String sessionId);
     Set<String> getSessionIds();
 
-    RtpPacket wrap(ClientSession clientSession, Packet packet, long currentTime);
-
     ResourceManager getResourceManager();
 
     BufferManager getBufferManager();
 
     ChannelManager getChannelManager();
+
+    RTPFormats getRtpFormats();
 }

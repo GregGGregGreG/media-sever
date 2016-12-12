@@ -5,7 +5,10 @@ import edu.greg.telesens.server.buffer.BufferManager;
 import edu.greg.telesens.server.channel.ChannelManager;
 import edu.greg.telesens.server.channel.ClientChannel;
 import edu.greg.telesens.server.format.AudioFormat;
+import edu.greg.telesens.server.format.FormatFactory;
 import edu.greg.telesens.server.memory.Packet;
+import edu.greg.telesens.server.network.rtp.RTPFormat;
+import edu.greg.telesens.server.network.rtp.RTPFormats;
 import edu.greg.telesens.server.network.rtp.RtpPacket;
 import edu.greg.telesens.server.resource.ResourceManager;
 import org.springframework.beans.factory.InitializingBean;
@@ -48,6 +51,9 @@ public class SessionRegistryImpl implements SessionRegistry, InitializingBean {
     @Autowired
     private ChannelManager channelManager;
 
+    //Media stream format
+    private RTPFormats rtpFormats = new RTPFormats();
+
     @Override
     public ClientSession register(String sipServer, String clientAddress, int clientPort, String melodyUrl, AudioFormat format, int repeat) throws Exception {
         ClientSessionImpl session = new ClientSessionImpl(this, sipServer, clientAddress, clientPort, serverAddress, portHolder.getPort(), melodyUrl, format, repeat);
@@ -59,7 +65,7 @@ public class SessionRegistryImpl implements SessionRegistry, InitializingBean {
     public void play(String sessionId) {
         ClientSession session = null;
         for (ClientSession s : sessions) {
-            if (session.getSessionId().equals(sessionId)) {
+            if (s.getSessionId().equals(sessionId)) {
                 session = s;
             }
         }
@@ -72,7 +78,7 @@ public class SessionRegistryImpl implements SessionRegistry, InitializingBean {
     public void stop(String sessionId) {
         ClientSession session = null;
         for (ClientSession s : sessions) {
-            if (session.getSessionId().equals(sessionId)) {
+            if (s.getSessionId().equals(sessionId)) {
                 session = s;
             }
         }
@@ -92,14 +98,12 @@ public class SessionRegistryImpl implements SessionRegistry, InitializingBean {
     }
 
     @Override
-    public RtpPacket wrap(ClientSession clientSession, Packet packet, long currentTime) {
-//       TODO !!!
-        return null;
-    }
-
-    @Override
     public void afterPropertiesSet() throws Exception {
         this.portHolder = new PortHolder(lowestPort, highestPort);
+        RTPFormat pcmu = new RTPFormat(0, FormatFactory.createAudioFormat("pcmu", 8000, 8, 1), 8000);
+        RTPFormat pcma = new RTPFormat(8, FormatFactory.createAudioFormat("pcma", 8000, 8, 1), 8000);
+        rtpFormats.add(pcmu);
+        rtpFormats.add(pcma);
     }
 
     public String getName() {
@@ -119,5 +123,10 @@ public class SessionRegistryImpl implements SessionRegistry, InitializingBean {
     @Override
     public ChannelManager getChannelManager() {
         return channelManager;
+    }
+
+    @Override
+    public RTPFormats getRtpFormats() {
+        return rtpFormats;
     }
 }

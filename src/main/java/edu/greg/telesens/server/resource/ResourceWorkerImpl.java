@@ -29,6 +29,7 @@ public class ResourceWorkerImpl implements ResourceWorker {
     private Track track;
     private AudioProcessor dsp;
     private long packetRealTime = 0L;
+    private long packetStartRealTime = 0L;
 
     private long timestamp = 0;
     private int packetCount = 0;
@@ -74,6 +75,7 @@ public class ResourceWorkerImpl implements ResourceWorker {
     public void run() {
         if (packetRealTime == 0L) {
             packetRealTime = System.currentTimeMillis();
+            packetStartRealTime = packetRealTime;
         }
         for (int i = 0; i < packetCount; i++) {
             try {
@@ -89,6 +91,7 @@ public class ResourceWorkerImpl implements ResourceWorker {
                 packet.setSessionId(session.getSessionId());
                 packet.setAudioFrame(audioFrame);
                 packet.setRealTime(packetRealTime);
+                packet.setStartRealTime(packetStartRealTime);
                 packetRealTime += 20L;
                 timestamp += 160L;
                 buffer.put(packet);

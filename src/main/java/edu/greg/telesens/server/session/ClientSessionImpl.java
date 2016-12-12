@@ -7,6 +7,7 @@ import edu.greg.telesens.server.channel.ClientChannelImpl;
 import edu.greg.telesens.server.format.AudioFormat;
 import edu.greg.telesens.server.format.Format;
 import edu.greg.telesens.server.memory.Packet;
+import edu.greg.telesens.server.network.rtp.RTPFormat;
 import edu.greg.telesens.server.network.rtp.RtpPacket;
 import edu.greg.telesens.server.resource.ResourceWorker;
 
@@ -28,10 +29,13 @@ public class ClientSessionImpl implements ClientSession {
     private SessionRegistry registry;
 
     private String sipServer;
+    private RTPFormat fmt;
 
     private ClientChannel channel;
 
     private ChannelWorker channelWorker;
+
+    private RtpPacket rtpPacket = new RtpPacket(8192, true);
 
 
 
@@ -45,6 +49,8 @@ public class ClientSessionImpl implements ClientSession {
         channel = new ClientChannelImpl(serverAddress, serverPort, clientAddress, clientPort);
         buffer = sessionRegistry.getBufferManager().createBuffer();
         resource = sessionRegistry.getResourceManager().createWorker(this);
+
+        channel.bind();
     }
 
     @Override
@@ -70,8 +76,17 @@ public class ClientSessionImpl implements ClientSession {
     }
 
     @Override
-    public RtpPacket wrap(Packet packet, long currentTime) {
-        return registry.wrap(this, packet, currentTime);
+    public RtpPacket wrap(Packet packet, long currentTime, int sequence) {
+        if (fmt == null || !fmt.getFormat().matches(packet.getAudioFrame().getFormat())) {
+            fmt = registry.getRtpFormats().getRTPFormat(packet.getAudioFrame().getFormat());
+        }
+//            log.debug("Send --> {}", Arrays.toString(audioFrame.getData()));
+
+        rtpPacket.wrap(false, fmt.getID(), sequence, packet.getTimestamp(),
+                packet.getStartRealTime(), packet.getAudioFrame().getData(), packet.getAudioFrame().getOffset(), packet.getAudioFrame().getLength());
+
+
+        return rtpPacket;
     }
 
     @Override
@@ -82,6 +97,12 @@ public class ClientSessionImpl implements ClientSession {
 
     @Override
     public void stop() {
+        try {
+            channel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
         if (channelWorker != null) {
             channelWorker.stopSession(this);
         }
