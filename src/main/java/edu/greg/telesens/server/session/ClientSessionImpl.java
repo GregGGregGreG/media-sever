@@ -1,78 +1,36 @@
 package edu.greg.telesens.server.session;
 
-import edu.greg.telesens.server.channel.ClientChannelImpl;
+import edu.greg.telesens.server.buffer.Buffer;
+import edu.greg.telesens.server.format.Format;
+import edu.greg.telesens.server.memory.Packet;
+import edu.greg.telesens.server.network.rtp.RtpPacket;
 
 /**
- * Created by Phoenix on 11.12.2016.
+ * Created by SKulik on 12.12.2016.
  */
-public class ClientSessionImpl {
-    //    global params
-    private String id;
-    private String sipServer;
-
-    //    addresses
-    private String clientAddress;
-    private int clientPort;
-    private String serverAddress;
-    private int serverPort;
-
-    //    local params
-    private ClientSessionState state;
-    private ClientChannelImpl channel;
-
-    public String getId() {
-        return id;
+public class ClientSessionImpl implements ClientSession {
+    @Override
+    public Buffer getBuffer() {
+        return null;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    @Override
+    public String getMelodyPath() {
+        return null;
     }
 
-    public String getSipServer() {
-        return sipServer;
+    @Override
+    public Format getDestinationFormat() {
+        return null;
     }
 
-    public void setSipServer(String sipServer) {
-        this.sipServer = sipServer;
+    @Override
+    public String getSessionId() {
+        return null;
     }
 
-    public String getClientAddress() {
-        return clientAddress;
-    }
-
-    public void setClientAddress(String clientAddress) {
-        this.clientAddress = clientAddress;
-    }
-
-    public int getClientPort() {
-        return clientPort;
-    }
-
-    public void setClientPort(int clientPort) {
-        this.clientPort = clientPort;
-    }
-
-    public String getServerAddress() {
-        return serverAddress;
-    }
-
-    public void setServerAddress(String serverAddress) {
-        this.serverAddress = serverAddress;
-    }
-
-    public int getServerPort() {
-        return serverPort;
-    }
-
-    public void setServerPort(int serverPort) {
-        this.serverPort = serverPort;
-    }
-
-    public ClientSessionState getState() {
-        return state;
-    }
-
-    public void setState(ClientSessionState state) {
-        this.state = state;
+    @Override
+    public RtpPacket wrap(Packet packet, long currentTime) {
+        return null;
     }
 }

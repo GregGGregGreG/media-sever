@@ -28,6 +28,7 @@ public class ResourceWorkerImpl implements ResourceWorker {
 
     private Track track;
     private AudioProcessor dsp;
+    private long packetRealTime;
 
     private long timestamp = 0;
     private int packetCount = 0;
@@ -55,6 +56,7 @@ public class ResourceWorkerImpl implements ResourceWorker {
         buffer = session.getBuffer();
         initTrack();
         initDsp();
+        packetRealTime = System.currentTimeMillis();
     }
 
     private void initTrack() throws IOException, UnsupportedAudioFileException {
@@ -77,14 +79,15 @@ public class ResourceWorkerImpl implements ResourceWorker {
                 frame = track.process(timestamp);
                 frame.setTimestamp(timestamp);
                 ShortFrame outputFrame = dsp.decode(frame);
-                frame.recycle();
                 ByteFrame audioFrame;
                 audioFrame = dsp.encode(outputFrame);
-                outputFrame.recycle();
 
                 Packet packet = PacketMemory.allocate();
                 packet.setSessionId(session.getSessionId());
                 packet.setAudioFrame(audioFrame);
+                packet.setRealTime(packetRealTime);
+                packetRealTime += 20L;
+                timestamp += 160L;
                 buffer.put(packet);
             } catch (IOException e) {
 //                TODO intercept exception (maybe need to log it)

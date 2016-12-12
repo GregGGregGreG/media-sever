@@ -19,5 +19,5 @@ public interface ClientSession {
 
     String getSessionId();
 
-    RtpPacket wrap(Packet packet, long currentTime, long timestamp);
+    RtpPacket wrap(Packet packet, long currentTime);
 }

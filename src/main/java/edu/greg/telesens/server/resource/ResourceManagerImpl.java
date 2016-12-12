@@ -9,6 +9,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -29,8 +31,10 @@ public class ResourceManagerImpl implements ResourceManager, DisposableBean, Ini
     private int poolSize;
 
     @Override
-    public ResourceWorker createWorker(ClientSession session) {
-        return null;
+    public ResourceWorker createWorker(ClientSession session) throws ClassNotFoundException, UnsupportedAudioFileException, InstantiationException, IllegalAccessException, IOException {
+        ResourceWorkerImpl worker = new ResourceWorkerImpl(this);
+        worker.init(session);
+        return worker;
     }
 
     @Override
@@ -56,8 +60,7 @@ public class ResourceManagerImpl implements ResourceManager, DisposableBean, Ini
 
     @Override
     public DspFactory getDspFactory() {
-//        TODO !!!!
-        return null;
+        return dspFactory;
     }
 
     @Override

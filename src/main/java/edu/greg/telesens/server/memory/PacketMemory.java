@@ -27,9 +27,6 @@
  */
 package edu.greg.telesens.server.memory;
 
-
-import edu.greg.telesens.server.concurrent.ConcurrentMap;
-
 /**
  * @author oifa yulian
  */

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.InjectionPoint;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Scope;
@@ -16,7 +17,8 @@ public class MediaSeverApplication {
 
 
     public static void main(String[] args) {
-        SpringApplication.run(MediaSeverApplication.class, args);
+        ApplicationContext ac = SpringApplication.run(MediaSeverApplication.class, args);
+        System.out.println("point");
     }
 
     @Bean

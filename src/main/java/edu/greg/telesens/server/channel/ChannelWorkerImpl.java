@@ -50,18 +50,15 @@ public class ChannelWorkerImpl implements ChannelWorker {
         long currentTime = System.currentTimeMillis();
         for (Map.Entry<String, Node> node : nodes.entrySet()) {
             Node n = node.getValue();
-            if (n.getSequence() == 0L) {
-                n.getTiming().initTime(currentTime, TimeUnit.MILLISECONDS);
-            }
             Packet packet = n.getBuffer().get(n.getSession().getSessionId());
-            while (packet != null && n.getTiming().getRealTimeByRtpTime(packet.getTimestamp(), TimeUnit.MILLISECONDS) < currentTime) {
-                RtpPacket rtp = n.getSession().wrap(packet, currentTime, n.getTimestamp());
+            while (packet != null && packet.getRealTime()  <= currentTime) {
+                RtpPacket rtp = n.getSession().wrap(packet, currentTime);
                 try {
                     n.getChannel().send(rtp);
                 } catch (IOException e) {
 //                    TODO intercept this exception
                 }
-                n.incTimestamp(160L);
+                packet.recycle();
                 n.incSequence();
                 packet = n.getBuffer().get(n.getSession().getSessionId());
             }
@@ -75,9 +72,7 @@ public class ChannelWorkerImpl implements ChannelWorker {
         private ClientSession session;
         private Buffer buffer;
         private ClientChannel channel;
-        private RtpToRealTiming timing = new RtpToRealTimingImpl();
         private long sequence = 0L;
-        private long timestamp = 0L;
 
         public Node(ClientSession session, Buffer buffer, ClientChannel channel) {
             this.session = session;
@@ -97,28 +92,12 @@ public class ChannelWorkerImpl implements ChannelWorker {
             return channel;
         }
 
-        public RtpToRealTiming getTiming() {
-            return timing;
-        }
-
         public long getSequence() {
             return sequence;
         }
 
         public void setSequence(long sequence) {
             this.sequence = sequence;
-        }
-
-        public long getTimestamp() {
-            return timestamp;
-        }
-
-        public void setTimestamp(long timestamp) {
-            this.timestamp = timestamp;
-        }
-
-        public void incTimestamp(long value) {
-            this.timestamp += value;
         }
 
         public void incSequence() {

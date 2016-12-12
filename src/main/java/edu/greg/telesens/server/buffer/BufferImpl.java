@@ -43,8 +43,8 @@ public class BufferImpl implements Buffer {
     @Override
     public void notify(String sessionId) {
         if (handler != null && !handled.get()) {
-            handler.handle(sessionId, bufferSize);
             handled.set(true);
+            handler.handle(sessionId, bufferSize);
         }
     }
 

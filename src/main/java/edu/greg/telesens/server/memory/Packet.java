@@ -9,8 +9,9 @@ public class Packet {
     protected AtomicBoolean inPartition = new AtomicBoolean(false);
     private PacketPartition partition;
     private String sessionId;
-    private ByteFrame audionFrame;
+    private ByteFrame audioFrame;
     private long timestamp;
+    private long realTime;
 
     public Packet(PacketPartition packetPartition) {
         this.partition = packetPartition;
@@ -18,6 +19,10 @@ public class Packet {
 
     void reset() {
         sessionId = null;
+        audioFrame.recycle();
+        audioFrame = null;
+        timestamp = 0;
+        realTime = 0;
     }
 
     public void recycle() {
@@ -39,11 +44,11 @@ public class Packet {
     }
 
     public void setAudioFrame(ByteFrame audionFrame) {
-        this.audionFrame = audionFrame;
+        this.audioFrame = audionFrame;
     }
 
-    public ByteFrame getAudionFrame() {
-        return audionFrame;
+    public ByteFrame getAudioFrame() {
+        return audioFrame;
     }
 
     public long getTimestamp() {
@@ -52,5 +57,13 @@ public class Packet {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public long getRealTime() {
+        return realTime;
+    }
+
+    public void setRealTime(long realTime) {
+        this.realTime = realTime;
     }
 }
