@@ -14,6 +14,7 @@ import edu.greg.telesens.server.session.ClientSession;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by Phoenix on 11.12.2016.
@@ -23,6 +24,7 @@ public class ResourceWorkerImpl implements ResourceWorker {
     private ResourceManager parent;
     private ClientSession session;
     private Buffer buffer;
+    private AtomicBoolean isStarted = new AtomicBoolean(true);
 
     private Track track;
     private AudioProcessor dsp;
@@ -36,8 +38,15 @@ public class ResourceWorkerImpl implements ResourceWorker {
 
     @Override
     public void handle(String sessionId, int packetCount) {
-        this.packetCount = packetCount;
-        parent.submit(this);
+        if (isStarted.get()) {
+            this.packetCount = packetCount;
+            parent.submit(this);
+        }
+    }
+
+    @Override
+    public void bufferStopped() {
+        isStarted.set(false);
     }
 
     @Override
