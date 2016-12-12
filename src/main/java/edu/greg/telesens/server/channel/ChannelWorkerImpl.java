@@ -31,11 +31,13 @@ public class ChannelWorkerImpl implements ChannelWorker {
 //            TODO we need to process this situation
         }
         nodes.put(session.getSessionId(), node);
+        parent.useWorker(this, session);
     }
 
     @Override
     public void stopSession(ClientSession session) {
         nodes.remove(session.getSessionId());
+        parent.freeWorker(this, session);
     }
 
     @Override
