@@ -12,6 +12,7 @@ public class Packet {
     private ByteFrame audioFrame;
     private long timestamp;
     private long realTime;
+    private long startRealTime;
 
     public Packet(PacketPartition packetPartition) {
         this.partition = packetPartition;
@@ -65,5 +66,13 @@ public class Packet {
 
     public void setRealTime(long realTime) {
         this.realTime = realTime;
+    }
+
+    public long getStartRealTime() {
+        return startRealTime;
+    }
+
+    public void setStartRealTime(long startRealTime) {
+        this.startRealTime = startRealTime;
     }
 }

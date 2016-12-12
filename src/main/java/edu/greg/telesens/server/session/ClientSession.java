@@ -11,6 +11,8 @@ import edu.greg.telesens.server.network.rtp.RtpPacket;
  */
 public interface ClientSession {
 
+
+
     Buffer getBuffer();
 
     String getMelodyPath();
@@ -19,5 +21,9 @@ public interface ClientSession {
 
     String getSessionId();
 
-    RtpPacket wrap(Packet packet, long currentTime);
+    RtpPacket wrap(Packet packet, long currentTime, int sequence);
+
+    void play();
+
+    void stop();
 }
