@@ -1,6 +1,7 @@
 package edu.greg.telesens.server.buffer;
 
 import edu.greg.telesens.server.memory.Packet;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Deque;
 import java.util.Queue;
@@ -14,6 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Created by SKulik on 12.12.2016.
  */
+@Slf4j
 public class BufferImpl implements Buffer {
 
     private Deque<Packet> queue = new ConcurrentLinkedDeque<>();
@@ -30,6 +32,7 @@ public class BufferImpl implements Buffer {
     @Override
     public Packet get(String sessionId) {
         if (queue.size() <= minBufferSize && !handled.get()) {
+            log.info("queue size {}", queue.size());
             notify(sessionId);
         }
         return queue.poll();

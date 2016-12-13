@@ -51,11 +51,17 @@ public class ChannelWorkerImpl implements ChannelWorker {
         for (Map.Entry<String, Node> node : nodes.entrySet()) {
             Node n = node.getValue();
             Packet packet = n.getBuffer().get(n.getSession().getSessionId());
+            if (n.getSequence() == 0L) {
+                n.setStartTime(currentTime);
+                if (packet != null) {
+                    n.setDelta(packet.getStartRealTime());
+                }
+            }
             int attempt = 0;
-            while (packet != null && packet.getRealTime() <= currentTime) {
+            while (packet != null && packet.getRealTime() + n.getDelta() <= currentTime) {
 //                TODO unnecessary cast
-                RtpPacket rtp = n.getSession().wrap(packet, currentTime, (int) n.getSequence());
-                while (attempt <= 3) {
+                RtpPacket rtp = n.getSession().wrap(packet, currentTime, (int) n.getSequence(), n.getStartTime());
+                while (attempt < 3) {
                     try {
                         n.getChannel().send(rtp);
                         break;
@@ -82,6 +88,8 @@ public class ChannelWorkerImpl implements ChannelWorker {
         private Buffer buffer;
         private ClientChannel channel;
         private long sequence = 0L;
+        private long startTime = 0L;
+        private long delta = 0L;
 
         public Node(ClientSession session, Buffer buffer, ClientChannel channel) {
             this.session = session;
@@ -111,6 +119,22 @@ public class ChannelWorkerImpl implements ChannelWorker {
 
         public void incSequence() {
             this.sequence++;
+        }
+
+        public long getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(long startTime) {
+            this.startTime = startTime;
+        }
+
+        public void setDelta(long packetRealTime) {
+            delta = startTime - packetRealTime;
+        }
+
+        public long getDelta() {
+            return delta;
         }
     }
 }

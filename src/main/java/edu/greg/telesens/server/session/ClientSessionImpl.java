@@ -76,14 +76,14 @@ public class ClientSessionImpl implements ClientSession {
     }
 
     @Override
-    public RtpPacket wrap(Packet packet, long currentTime, int sequence) {
+    public RtpPacket wrap(Packet packet, long currentTime, int sequence, long startTime) {
         if (fmt == null || !fmt.getFormat().matches(packet.getAudioFrame().getFormat())) {
             fmt = registry.getRtpFormats().getRTPFormat(packet.getAudioFrame().getFormat());
         }
 //            log.debug("Send --> {}", Arrays.toString(audioFrame.getData()));
 
         rtpPacket.wrap(false, fmt.getID(), sequence, packet.getAudioFrame().getTimestamp(),
-                packet.getStartRealTime(), packet.getAudioFrame().getData(), packet.getAudioFrame().getOffset(), packet.getAudioFrame().getLength());
+                startTime, packet.getAudioFrame().getData(), packet.getAudioFrame().getOffset(), packet.getAudioFrame().getLength());
 
 
         return rtpPacket;
