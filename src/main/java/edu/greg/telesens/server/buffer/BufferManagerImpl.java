@@ -19,7 +19,7 @@ public class BufferManagerImpl implements BufferManager, InitializingBean, Dispo
     @Value("${buffers.genBufferSize:10}")
     private int bufferSize;
 
-    @Value("${buffers.minBufferSize:10}")
+    @Value("${buffers.minBufferSize:20}")
     private int minBufferSize;
 
 

@@ -21,7 +21,7 @@ public interface ClientSession {
 
     String getSessionId();
 
-    RtpPacket wrap(Packet packet, long currentTime, int sequence);
+    RtpPacket wrap(Packet packet, long currentTime, int sequence, long startTime);
 
     void play();
 

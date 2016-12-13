@@ -28,7 +28,7 @@ public class ChannelManagerImpl implements ChannelManager, InitializingBean, Dis
     @Value("${channel.poolSize:4}")
     private int poolSize;
 
-    @Value("${channel.sendInterval:10}")
+    @Value("${channel.sendInterval:5}")
     private long sendInterval;
 
     @Override
