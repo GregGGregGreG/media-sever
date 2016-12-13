@@ -51,14 +51,22 @@ public class ChannelWorkerImpl implements ChannelWorker {
         for (Map.Entry<String, Node> node : nodes.entrySet()) {
             Node n = node.getValue();
             Packet packet = n.getBuffer().get(n.getSession().getSessionId());
-            while (packet != null && packet.getRealTime()  <= currentTime) {
-//                TODO cast
+            int attempt = 0;
+            while (packet != null && packet.getRealTime() <= currentTime) {
+//                TODO unnecessary cast
                 RtpPacket rtp = n.getSession().wrap(packet, currentTime, (int) n.getSequence());
-                try {
-                    n.getChannel().send(rtp);
-                } catch (IOException e) {
-//                    TODO intercept this exception
+                while (attempt <= 3) {
+                    try {
+                        n.getChannel().send(rtp);
+                        break;
+                    } catch (IOException e) {
+                        if (attempt <= 3) {
+                            attempt++;
+                        }
+//                    TODO log this exception
+                    }
                 }
+                attempt = 0;
                 packet.recycle();
                 n.incSequence();
                 packet = n.getBuffer().get(n.getSession().getSessionId());
