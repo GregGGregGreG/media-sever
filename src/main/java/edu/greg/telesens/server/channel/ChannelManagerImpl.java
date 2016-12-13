@@ -25,7 +25,7 @@ public class ChannelManagerImpl implements ChannelManager, InitializingBean, Dis
     private ScheduledExecutorService executorService;
     private List<Slot> workers = new CopyOnWriteArrayList<>();
 
-    @Value("${channel.poolSize:4}")
+    @Value("${channel.txPoolSize:4}")
     private int poolSize;
 
     @Value("${channel.sendInterval:5}")

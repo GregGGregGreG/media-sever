@@ -2,6 +2,7 @@ package edu.greg.telesens.server.session;
 
 import edu.greg.telesens.server.buffer.Buffer;
 import edu.greg.telesens.server.channel.ClientChannelImpl;
+import edu.greg.telesens.server.channel.DtmfEventListener;
 import edu.greg.telesens.server.format.Format;
 import edu.greg.telesens.server.memory.Packet;
 import edu.greg.telesens.server.network.rtp.RtpPacket;
@@ -26,4 +27,6 @@ public interface ClientSession {
     void play();
 
     void stop();
+
+    DtmfEventListener getDtmfEventListener();
 }

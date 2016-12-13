@@ -4,6 +4,7 @@ import edu.greg.telesens.server.buffer.Buffer;
 import edu.greg.telesens.server.channel.ChannelWorker;
 import edu.greg.telesens.server.channel.ClientChannel;
 import edu.greg.telesens.server.channel.ClientChannelImpl;
+import edu.greg.telesens.server.channel.DtmfEventListener;
 import edu.greg.telesens.server.format.AudioFormat;
 import edu.greg.telesens.server.format.Format;
 import edu.greg.telesens.server.memory.Packet;
@@ -18,7 +19,7 @@ import java.net.InetSocketAddress;
 /**
  * Created by SKulik on 12.12.2016.
  */
-public class ClientSessionImpl implements ClientSession {
+public class ClientSessionImpl implements ClientSession, DtmfEventListener {
 
     private ResourceWorker resource;
     private Buffer buffer;
@@ -108,5 +109,15 @@ public class ClientSessionImpl implements ClientSession {
         }
         buffer.cleanup();
         registry.getResourceManager().freeWorker(resource);
+    }
+
+    @Override
+    public DtmfEventListener getDtmfEventListener() {
+        return this;
+    }
+
+    @Override
+    public void keyDetected(byte key) {
+        registry.getSipServerConnector().sendDtmfDetected(sipServer, sessionId, key);
     }
 }
