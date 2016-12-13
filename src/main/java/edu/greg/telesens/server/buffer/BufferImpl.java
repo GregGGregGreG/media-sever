@@ -32,7 +32,7 @@ public class BufferImpl implements Buffer {
     @Override
     public Packet get(String sessionId) {
         if (queue.size() <= minBufferSize && !handled.get()) {
-            log.info("queue size {}", queue.size());
+            log.debug("queue size {}", queue.size());
             notify(sessionId);
         }
         return queue.poll();
