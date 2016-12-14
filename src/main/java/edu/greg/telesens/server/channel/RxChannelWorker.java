@@ -31,6 +31,10 @@ public class RxChannelWorker implements Runnable {
 
     private AtomicBoolean isRunning = new AtomicBoolean(true);
 
+    private static final long WAIT_TIME = 10L;
+    private static final long SLEEP_TIME = 10000L;
+    private final Object sync = new Object();
+
     private RxChannelManager parent;
     private RTPFormats formats;
 
@@ -43,6 +47,16 @@ public class RxChannelWorker implements Runnable {
     public void run() {
 
         while (isRunning.get()) {
+            if (nodes.size() == 0) {
+                synchronized (sync) {
+                    try {
+                        sync.wait(SLEEP_TIME);
+                    } catch (InterruptedException e) {
+//                        TODO
+                        e.printStackTrace();
+                    }
+                }
+            }
             for (Node node: nodes) {
                 try {
                     if (node.getSelector().select() > 0) {
@@ -66,6 +80,14 @@ public class RxChannelWorker implements Runnable {
                     }
                 } catch (IOException e) {
 //                    TODO intercept exception
+                }
+            }
+            synchronized (sync) {
+                try {
+                    sync.wait(WAIT_TIME);
+                } catch (InterruptedException e) {
+//                    TODO
+                    e.printStackTrace();
                 }
             }
         }
@@ -111,6 +133,9 @@ public class RxChannelWorker implements Runnable {
         node.setPacket(new RtpPacket(8192, true));
         node.setDtmpEventProcessor(new DtmfEventProcessorImpl(session.getDtmfEventListener()));
         nodes.add(node);
+        synchronized (sync) {
+            sync.notify();
+        }
     }
 
     public AtomicInteger getLoading() {

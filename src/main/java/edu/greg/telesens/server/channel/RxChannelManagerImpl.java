@@ -33,7 +33,7 @@ public class RxChannelManagerImpl implements RxChannelManager, InitializingBean,
 
     @Override
     public void start() throws IOException {
-        executorService = Executors.newScheduledThreadPool(poolSize, new NamedThreadFactory("resource"));
+        executorService = Executors.newScheduledThreadPool(poolSize, new NamedThreadFactory("rxChannel"));
         for (int i = 0; i < poolSize; i++) {
             RxChannelWorker worker = new RxChannelWorker(this);
             tasks.add(worker);
