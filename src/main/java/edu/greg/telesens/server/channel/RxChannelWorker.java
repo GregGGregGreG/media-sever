@@ -70,7 +70,7 @@ public class RxChannelWorker implements Runnable {
                                 ((DatagramChannel)key.channel()).read(node.getPacket().getBuffer());
                                 RTPFormat format = formats.find(node.getPacket().getPayloadType());
                                 if (format != null && format.getFormat().matches(dtmf)) {
-                                    node.getDtmpEventProcessor().process(node.getPacket());
+                                    node.getDtmfEventProcessor().process(node.getPacket());
                                 } else {
 //                                    TODO add detect voice
                                 }
@@ -185,7 +185,7 @@ public class RxChannelWorker implements Runnable {
             this.dtmpEventProcessor = dtmpEventListener;
         }
 
-        public DtmfEventProcessor getDtmpEventProcessor() {
+        public DtmfEventProcessor getDtmfEventProcessor() {
             return dtmpEventProcessor;
         }
     }
