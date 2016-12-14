@@ -26,4 +26,6 @@ public interface SessionRegistry {
     ChannelManager getChannelManager();
 
     RTPFormats getRtpFormats();
+
+    SipServerConnector getSipServerConnector();
 }

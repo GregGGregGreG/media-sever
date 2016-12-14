@@ -1,6 +1,5 @@
 package edu.greg.telesens.server.channel;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import edu.greg.telesens.server.network.rtp.RtpPacket;
 
 import java.io.IOException;
@@ -38,5 +37,10 @@ public class ClientChannelImpl implements ClientChannel {
 
     public void send(RtpPacket rtpPacket) throws IOException {
         channel.send(rtpPacket.getBuffer(), dstSockAddr);
+    }
+
+    @Override
+    public DatagramChannel getChannel() {
+        return channel;
     }
 }

@@ -23,7 +23,6 @@ public class BufferManagerImpl implements BufferManager, InitializingBean, Dispo
     private int minBufferSize;
 
 
-
     @Override
     public void start() {
         stop();
@@ -32,7 +31,9 @@ public class BufferManagerImpl implements BufferManager, InitializingBean, Dispo
     @Override
     public void stop() {
         if (!buffers.isEmpty()) {
-            buffers.forEach(it -> it.cleanup());
+            for (Buffer buf : buffers) {
+                buf.cleanup();
+            }
             buffers.clear();
         }
     }

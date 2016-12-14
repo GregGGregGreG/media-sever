@@ -11,6 +11,7 @@ import edu.greg.telesens.server.network.rtp.RTPFormat;
 import edu.greg.telesens.server.network.rtp.RTPFormats;
 import edu.greg.telesens.server.network.rtp.RtpPacket;
 import edu.greg.telesens.server.resource.ResourceManager;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Created by SKulik on 12.12.2016.
  */
+@Slf4j
 @Component
 public class SessionRegistryImpl implements SessionRegistry, InitializingBean {
 
@@ -128,5 +130,16 @@ public class SessionRegistryImpl implements SessionRegistry, InitializingBean {
     @Override
     public RTPFormats getRtpFormats() {
         return rtpFormats;
+    }
+
+    @Override
+    public SipServerConnector getSipServerConnector() {
+//        TODO
+        return new SipServerConnector() {
+            @Override
+            public void sendDtmfDetected(String sipServer, String sessionId, byte dtmf) {
+                log.info("dtmf detected for server {}, session {} and key {}", sipServer, sessionId, dtmf);
+            }
+        };
     }
 }
