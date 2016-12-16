@@ -2,10 +2,9 @@ package edu.greg.telesens.server.session;
 
 import edu.greg.telesens.server.buffer.BufferManager;
 import edu.greg.telesens.server.channel.ChannelManager;
+import edu.greg.telesens.server.channel.RxChannelManager;
 import edu.greg.telesens.server.format.AudioFormat;
-import edu.greg.telesens.server.memory.Packet;
 import edu.greg.telesens.server.network.rtp.RTPFormats;
-import edu.greg.telesens.server.network.rtp.RtpPacket;
 import edu.greg.telesens.server.resource.ResourceManager;
 
 import java.util.Set;
@@ -28,4 +27,6 @@ public interface SessionRegistry {
     RTPFormats getRtpFormats();
 
     SipServerConnector getSipServerConnector();
+
+    RxChannelManager getRxChannelManager();
 }

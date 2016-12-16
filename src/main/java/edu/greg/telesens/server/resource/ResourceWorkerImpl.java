@@ -78,6 +78,13 @@ public class ResourceWorkerImpl implements ResourceWorker {
             packetStartRealTime = packetRealTime;
         }
         for (int i = 0; i < packetCount; i++) {
+
+            if (!isStarted.get()) {
+                track.close();
+                track = null;
+                break;
+            }
+
             try {
                 ByteFrame frame;
 

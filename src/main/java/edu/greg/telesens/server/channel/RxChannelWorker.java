@@ -6,6 +6,9 @@ import edu.greg.telesens.server.network.rtp.RTPFormat;
 import edu.greg.telesens.server.network.rtp.RTPFormats;
 import edu.greg.telesens.server.network.rtp.RtpPacket;
 import edu.greg.telesens.server.session.ClientSession;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.channels.DatagramChannel;
@@ -21,9 +24,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by SKulik on 13.12.2016.
  */
+@Slf4j
 public class RxChannelWorker implements Runnable {
 
     private final static AudioFormat dtmf = FormatFactory.createAudioFormat("telephone-event", 8000);
+
+    static {
+        dtmf.setOptions("0-15");
+    }
 
     private AtomicInteger loading = new AtomicInteger(0);
     private List<String> managedSessions = new CopyOnWriteArrayList<>();
@@ -50,66 +58,69 @@ public class RxChannelWorker implements Runnable {
             if (nodes.size() == 0) {
                 synchronized (sync) {
                     try {
+                        log.debug("Sleep RxWorkerSleep --> {}", getClass().getName());
                         sync.wait(SLEEP_TIME);
+                        log.debug("Start RxWorkerSleep --> {}", getClass().getName());
                     } catch (InterruptedException e) {
 //                        TODO
                         e.printStackTrace();
                     }
                 }
             }
-            for (Node node: nodes) {
+            for (Node node : nodes) {
                 try {
-                    if (node.getSelector().select() > 0) {
-                        Set<SelectionKey> keys = node.getSelector().selectedKeys();
-                        Iterator<SelectionKey> it = keys.iterator();
+//                    if (node.getSelector().select() > 0) {
+                    node.getSelector().select();
+                    Set<SelectionKey> keys = node.getSelector().selectedKeys();
+                    Iterator<SelectionKey> it = keys.iterator();
 
-                        while (it.hasNext()) {
-                            SelectionKey key = it.next();
-                            if (key.isReadable()) {
-                                node.getPacket().getBuffer().clear();
-                                ((DatagramChannel)key.channel()).read(node.getPacket().getBuffer());
-                                RTPFormat format = formats.find(node.getPacket().getPayloadType());
-                                if (format != null && format.getFormat().matches(dtmf)) {
-                                    node.getDtmfEventProcessor().process(node.getPacket());
-                                } else {
+                    while (it.hasNext()) {
+                        SelectionKey selectionKey = it.next();
+                        it.remove();
+
+                        if (selectionKey.isReadable()) {
+                            node.getPacket().getBuffer().clear();
+                            ((DatagramChannel) selectionKey.channel()).receive(node.getPacket().getBuffer());
+                            RTPFormat format = formats.find(node.getPacket().getPayloadType());
+                            if (format != null && format.getFormat().matches(dtmf)) {
+                                node.getDtmpEventProcessor().process(node.getPacket());
+                            } else {
 //                                    TODO add detect voice
-                                }
                             }
-                            it.remove();
                         }
+
                     }
+//                    }
                 } catch (IOException e) {
 //                    TODO intercept exception
                 }
             }
-            synchronized (sync) {
-                try {
-                    sync.wait(WAIT_TIME);
-                } catch (InterruptedException e) {
-//                    TODO
-                    e.printStackTrace();
-                }
-            }
+//            synchronized (sync) {
+//                try {
+//                    sync.wait(WAIT_TIME);
+//                } catch (InterruptedException e) {
+////                    TODO
+//                    e.printStackTrace();
+//                }
+//            }
         }
     }
 
     public void stop() throws IOException {
         isRunning.set(false);
-        for (Node n: nodes) {
+        for (Node n : nodes) {
             n.getSelector().close();
         }
         nodes.clear();
     }
 
 
-
     public void unregister(String sessionId) throws IOException {
         if (managedSessions.contains(sessionId)) {
             Node node = null;
-            for (Node n: nodes) {
+            for (Node n : nodes) {
                 if (n.getSession().getSessionId().equals(sessionId)) {
                     node = n;
-                    break;
                 }
             }
             nodes.remove(node);
@@ -128,7 +139,8 @@ public class RxChannelWorker implements Runnable {
         DatagramChannel ch = channel.getChannel();
 //        int ops = ch.validOps();
 //        ch.register(selector, ops, null);
-        ch.register(selector, SelectionKey.OP_READ);
+        int ops = ch.validOps();
+        ch.register(selector, ops);
         node.setSelector(selector);
         node.setPacket(new RtpPacket(8192, true));
         node.setDtmpEventProcessor(new DtmfEventProcessorImpl(session.getDtmfEventListener()));
@@ -142,6 +154,8 @@ public class RxChannelWorker implements Runnable {
         return loading;
     }
 
+    @Getter
+    @Setter
     private static class Node {
         ClientSession session;
         ClientChannel channel;
@@ -149,44 +163,5 @@ public class RxChannelWorker implements Runnable {
         RtpPacket packet;
         private DtmfEventProcessor dtmpEventProcessor;
 
-        public ClientSession getSession() {
-            return session;
-        }
-
-        public void setSession(ClientSession session) {
-            this.session = session;
-        }
-
-        public ClientChannel getChannel() {
-            return channel;
-        }
-
-        public void setChannel(ClientChannel channel) {
-            this.channel = channel;
-        }
-
-        public Selector getSelector() {
-            return selector;
-        }
-
-        public void setSelector(Selector selector) {
-            this.selector = selector;
-        }
-
-        public RtpPacket getPacket() {
-            return packet;
-        }
-
-        public void setPacket(RtpPacket packet) {
-            this.packet = packet;
-        }
-
-        public void setDtmpEventProcessor(DtmfEventProcessor dtmpEventListener) {
-            this.dtmpEventProcessor = dtmpEventListener;
-        }
-
-        public DtmfEventProcessor getDtmfEventProcessor() {
-            return dtmpEventProcessor;
-        }
     }
 }

@@ -4,13 +4,8 @@ import edu.greg.telesens.server.memory.Packet;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Deque;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by SKulik on 12.12.2016.
@@ -32,7 +27,7 @@ public class BufferImpl implements Buffer {
     @Override
     public Packet get(String sessionId) {
         if (queue.size() <= minBufferSize && !handled.get()) {
-            log.debug("queue size {}", queue.size());
+//            log.debug("queue size {}", queue.size());
             notify(sessionId);
         }
         return queue.poll();

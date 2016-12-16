@@ -2,7 +2,6 @@ package edu.greg.telesens.server.session;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -59,6 +58,4 @@ public class PortHolder {
         usedPorts.add(lastPort);
         return lastPort;
     }
-
-
 }

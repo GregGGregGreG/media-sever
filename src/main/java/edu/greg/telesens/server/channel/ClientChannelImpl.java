@@ -1,6 +1,8 @@
 package edu.greg.telesens.server.channel;
 
 import edu.greg.telesens.server.network.rtp.RtpPacket;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -10,7 +12,10 @@ import java.nio.channels.DatagramChannel;
 /**
  * Created by SKulik on 09.12.2016.
  */
+@Slf4j
+@Getter
 public class ClientChannelImpl implements ClientChannel {
+
     private InetSocketAddress dstSockAddr;
     private InetSocketAddress srcSockAddr;
     private DatagramChannel channel;
@@ -36,11 +41,8 @@ public class ClientChannelImpl implements ClientChannel {
     }
 
     public void send(RtpPacket rtpPacket) throws IOException {
+//        log.debug("{} --> {} RTP packet ", srcSockAddr.getAddress().getCanonicalHostName(), dstSockAddr.getAddress().toString(), rtpPacket.getBuffer().toString());
         channel.send(rtpPacket.getBuffer(), dstSockAddr);
     }
 
-    @Override
-    public DatagramChannel getChannel() {
-        return channel;
-    }
 }

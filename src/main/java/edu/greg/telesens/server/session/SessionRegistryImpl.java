@@ -1,15 +1,12 @@
 package edu.greg.telesens.server.session;
 
-import edu.greg.telesens.server.buffer.Buffer;
 import edu.greg.telesens.server.buffer.BufferManager;
 import edu.greg.telesens.server.channel.ChannelManager;
-import edu.greg.telesens.server.channel.ClientChannel;
+import edu.greg.telesens.server.channel.RxChannelManager;
 import edu.greg.telesens.server.format.AudioFormat;
 import edu.greg.telesens.server.format.FormatFactory;
-import edu.greg.telesens.server.memory.Packet;
 import edu.greg.telesens.server.network.rtp.RTPFormat;
 import edu.greg.telesens.server.network.rtp.RTPFormats;
-import edu.greg.telesens.server.network.rtp.RtpPacket;
 import edu.greg.telesens.server.resource.ResourceManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -19,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -31,7 +29,7 @@ public class SessionRegistryImpl implements SessionRegistry, InitializingBean {
 
     private List<ClientSession> sessions = new CopyOnWriteArrayList<>();
 
-    @Value("${session.address:localhost}")
+    @Value("${server.address:localhost}")
     private String serverAddress;
 
     @Value("${session.lowestPort:10000}")
@@ -55,6 +53,9 @@ public class SessionRegistryImpl implements SessionRegistry, InitializingBean {
 
     //Media stream format
     private RTPFormats rtpFormats = new RTPFormats();
+
+    @Autowired
+    private RxChannelManager rxChannelManager;
 
     @Override
     public ClientSession register(String sipServer, String clientAddress, int clientPort, String melodyUrl, AudioFormat format, int repeat) throws Exception {
@@ -82,11 +83,13 @@ public class SessionRegistryImpl implements SessionRegistry, InitializingBean {
         for (ClientSession s : sessions) {
             if (s.getSessionId().equals(sessionId)) {
                 session = s;
+                break;
             }
         }
-        if (session != null) {
-            session.stop();
+        if (Objects.nonNull(session)) {
             sessions.remove(session);
+            session.stop();
+            portHolder.freePort(session.getChannel().getSrcSockAddr().getPort());
         }
     }
 
@@ -141,5 +144,10 @@ public class SessionRegistryImpl implements SessionRegistry, InitializingBean {
                 log.info("dtmf detected for server {}, session {} and key {}", sipServer, sessionId, dtmf);
             }
         };
+    }
+
+    @Override
+    public RxChannelManager getRxChannelManager() {
+        return rxChannelManager;
     }
 }

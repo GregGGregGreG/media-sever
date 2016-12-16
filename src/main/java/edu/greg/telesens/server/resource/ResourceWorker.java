@@ -10,5 +10,6 @@ import java.io.IOException;
  * Created by Phoenix on 11.12.2016.
  */
 public interface ResourceWorker extends Runnable, BufferEventHandler{
+
     void init(ClientSession session) throws IOException, UnsupportedAudioFileException, IllegalAccessException, InstantiationException, ClassNotFoundException;
 }

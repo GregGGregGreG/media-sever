@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -39,7 +39,7 @@ public class ResourceManagerImpl implements ResourceManager, DisposableBean, Ini
     }
 
     @Override
-    public void freeWorker(ResourceWorker worker) {
+    public void destroyWorker(ResourceWorker worker) {
         workers.remove(worker);
     }
 
@@ -60,8 +60,8 @@ public class ResourceManagerImpl implements ResourceManager, DisposableBean, Ini
     }
 
     @Override
-    public void submit(ResourceWorker worker) {
-        executorService.submit(worker);
+    public Future<?> submit(ResourceWorker worker) {
+        return executorService.submit(worker);
     }
 
     @Override

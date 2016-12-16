@@ -16,9 +16,10 @@ public class DtmfEventProcessorImpl implements DtmfEventProcessor {
 
     @Override
     public void process(RtpPacket packet) {
-        byte eventId = packet.getBuffer().get(0);
-        byte isEnd = (byte) (packet.getBuffer().get(1) >> 7);
+        byte eventId = packet.getBuffer().get(12);
+        byte isEnd = (byte) (packet.getBuffer().get(13) >> 7);
         if (eventId != lastEventId || (isEnd == (byte)0 && lastIsEnd == (byte)1)) {
+//            lastEventId = isEnd == (byte)1 ? -1 :eventId;
             lastEventId = eventId;
             lastIsEnd = isEnd;
             listener.keyDetected(lastEventId);
